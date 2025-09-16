@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="fa">
 <head>
   <meta charset="utf-8" />
@@ -14,62 +15,40 @@
 </head>
 <body>
   <h2>فرمت‌کنندهٔ اکانت‌ها (پسوردها = نام ادمین)</h2>
-  <p>لیست اکانت رو طبق فرمت بدید (اسم برنامه + خط حاوی «pa► نام‌ادمین»). خروجی فایل TXT شامل متن کامل میشه.</p>
+  <p>لیست اکانت رو طبق فرمت بدید (اسم برنامه + خط حاوی «pa► نام‌ادمین»). خروجی فایل TXT شامل متن کامل میشه.</p><label>لیست اکانت:</label>
 
-  <label>لیست اکانت:</label>
-  <textarea id="input" placeholder="لیست اکانت‌ها رو اینجا بچسبونید..."></textarea>
-
-  <div class="controls">
+  <textarea id="input" placeholder="لیست اکانت‌ها رو اینجا بچسبونید..."></textarea>  <div class="controls">
     <button id="generate">تولید فایل TXT</button>
     <button id="preview">نمایش پیش‌نمایش</button>
-  </div>
-
-  <div id="previewArea" class="output-preview" style="display:none"></div>
-
-  <script>
+  </div>  <div id="previewArea" class="output-preview" style="display:none"></div>  <script>
     function parseAccounts(text){
       const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
       const accounts = [];
-      let current = {accountName:null, admin:null};
-
-      function push(){
-        if(current.accountName){
-          accounts.push({...current});
-        }
-        current = {accountName:null, admin:null};
-      }
+      let currentName = null;
+      let currentAdmin = null;
 
       for(let i=0;i<lines.length;i++){
         const l = lines[i];
         if(/^pa/i.test(l) || l.startsWith('𝗽𝗮')){
           const parts = l.split(/►|:| /).map(x=>x.trim()).filter(x=>x);
-          current.admin = parts[parts.length-1];
-          push();
-        } else if(!/^---/.test(l) && !/trial/i.test(l)){
-          if(current.accountName){
-            push();
+          currentAdmin = parts[parts.length-1];
+          if(currentName){
+            accounts.push({accountName: currentName, admin: currentAdmin});
+            currentName = null;
+            currentAdmin = null;
           }
-          current.accountName = l;
-        } else {
-          push();
+        } else if(!/^---/.test(l) && !/trial/i.test(l)){
+          currentName = l;
         }
       }
-      push();
-      // حذف تکراری‌ها
-      const seen = new Set();
-      return accounts.filter(a=>{
-        if(!a.accountName) return false;
-        if(seen.has(a.accountName)) return false;
-        seen.add(a.accountName);
-        return true;
-      });
+      return accounts;
     }
 
     function buildOutput(accounts){
       const parts = accounts.map(acc=>{
         const name = acc.accountName;
         const admin = acc.admin || 'Admin';
-        return `سلام امیدوارم که خوب باشی 🌻\n${name}\nپسورد ${name} تقدیم شما 🙏🏻❤️\n\nEmail: \nPassword: ${admin}\n\n🎯 قوانین طلاییِ گرفتن پسورد! بخون که بن نشی!\n\n1. پسورد گرفتی؟ عالیه! ولی یادت نره اسکرین‌شات زیر اون پست مربوطه رو بفرستی.\nاسکرین‌شات نفرستی یعنی پسوردو دزدکی گرفتی 😏 و دیگه خبری از پسورد جدید نیست!\n\n2. پسورد مثه مسواک می‌مونه... فقط برای خودته! 😁\nاگه با کسی شیرش کنی، با احترام (و یه لگد مجازی 😅) بن می‌شی!\n\n3. لطفاً در روز فقط یه پسورد بگیر.\nهی نرو پشت سر هم بزنی، ربات حواسش جمعه 😐 و اگه ببینه زیادی زرنگی، برات کلاً قفل می‌کنه!\n`;
+        return `سلام امیدوارم که خوب باشی 🌻\nپسورد ${name} تقدیم شما 🙏🏻❤️\n\nEmail: \nPassword: ${admin}\n\n🎯 قوانین طلاییِ گرفتن پسورد! بخون که بن نشی!\n\n1. پسورد گرفتی؟ عالیه! ولی یادت نره اسکرین‌شات زیر اون پست مربوطه رو بفرستی.\nاسکرین‌شات نفرستی یعنی پسوردو دزدکی گرفتی 😏 و دیگه خبری از پسورد جدید نیست!\n\n2. پسورد مثه مسواک می‌مونه... فقط برای خودته! 😁\nاگه با کسی شیرش کنی، با احترام (و یه لگد مجازی 😅) بن می‌شی!\n\n3. لطفاً در روز فقط یه پسورد بگیر.\nهی نرو پشت سر هم بزنی، ربات حواسش جمعه 😐 و اگه ببینه زیادی زرنگی، برات کلاً قفل می‌کنه!\n`;
       });
       return parts.join("\n\n\n");
     }
@@ -104,6 +83,5 @@
       p.style.display = 'block';
       p.textContent = out;
     });
-  </script>
-</body>
+  </script></body>
 </html>

@@ -15,7 +15,7 @@
 </head>
 <body>
   <h2>فرمت‌کنندهٔ اکانت‌ها (پسوردها = نام ادمین)</h2>
-  <p>لیست اکانت رو طبق فرمت بدید (اسم برنامه + خط حاوی «pa► نام‌ادمین»). خروجی فایل TXT شامل متن کامل میشه.</p><label>لیست اکانت:</label>
+  <p>لیست اکانت رو طبق فرمت بدید (خط ایمیل + اسم برنامه + خط حاوی «pa► نام‌ادمین»). خروجی فایل TXT شامل متن کامل میشه.</p><label>لیست اکانت:</label>
 
   <textarea id="input" placeholder="لیست اکانت‌ها رو اینجا بچسبونید..."></textarea>  <div class="controls">
     <button id="generate">تولید فایل TXT</button>
@@ -26,16 +26,21 @@
       const accounts = [];
       let currentName = null;
       let currentAdmin = null;
+      let currentEmail = '';
 
       for(let i=0;i<lines.length;i++){
         const l = lines[i];
-        if(/^pa/i.test(l) || l.startsWith('𝗽𝗮')){
+        if(l.toLowerCase().startsWith('𝗲𝗺𝗮𝗶𝗹')){
+          const parts = l.split(/►|:| /).map(x=>x.trim()).filter(x=>x);
+          currentEmail = parts.slice(1).join(' ');
+        } else if(/^pa/i.test(l) || l.startsWith('𝗽𝗮')){
           const parts = l.split(/►|:| /).map(x=>x.trim()).filter(x=>x);
           currentAdmin = parts[parts.length-1];
           if(currentName){
-            accounts.push({accountName: currentName, admin: currentAdmin});
+            accounts.push({accountName: currentName, admin: currentAdmin, email: currentEmail});
             currentName = null;
             currentAdmin = null;
+            currentEmail = '';
           }
         } else if(!/^---/.test(l) && !/trial/i.test(l)){
           currentName = l;
@@ -48,7 +53,8 @@
       const parts = accounts.map(acc=>{
         const name = acc.accountName;
         const admin = acc.admin || 'Admin';
-        return `سلام امیدوارم که خوب باشی 🌻\nپسورد ${name} تقدیم شما 🙏🏻❤️\n\nEmail: \nPassword: ${admin}\n\n🎯 قوانین طلاییِ گرفتن پسورد! بخون که بن نشی!\n\n1. پسورد گرفتی؟ عالیه! ولی یادت نره اسکرین‌شات زیر اون پست مربوطه رو بفرستی.\nاسکرین‌شات نفرستی یعنی پسوردو دزدکی گرفتی 😏 و دیگه خبری از پسورد جدید نیست!\n\n2. پسورد مثه مسواک می‌مونه... فقط برای خودته! 😁\nاگه با کسی شیرش کنی، با احترام (و یه لگد مجازی 😅) بن می‌شی!\n\n3. لطفاً در روز فقط یه پسورد بگیر.\nهی نرو پشت سر هم بزنی، ربات حواسش جمعه 😐 و اگه ببینه زیادی زرنگی، برات کلاً قفل می‌کنه!\n`;
+        const email = acc.email || '';
+        return `سلام امیدوارم که خوب باشی 🌻\nپسورد ${name} تقدیم شما 🙏🏻❤️\n\nEmail: ${email}\nPassword: ${admin}\n\n🎯 قوانین طلاییِ گرفتن پسورد! بخون که بن نشی!\n\n1. پسورد گرفتی؟ عالیه! ولی یادت نره اسکرین‌شات زیر اون پست مربوطه رو بفرستی.\nاسکرین‌شات نفرستی یعنی پسوردو دزدکی گرفتی 😏 و دیگه خبری از پسورد جدید نیست!\n\n2. پسورد مثه مسواک می‌مونه... فقط برای خودته! 😁\nاگه با کسی شیرش کنی، با احترام (و یه لگد مجازی 😅) بن می‌شی!\n\n3. لطفاً در روز فقط یه پسورد بگیر.\nهی نرو پشت سر هم بزنی، ربات حواسش جمعه 😐 و اگه ببینه زیادی زرنگی، برات کلاً قفل می‌کنه!\n`;
       });
       return parts.join("\n\n\n");
     }
